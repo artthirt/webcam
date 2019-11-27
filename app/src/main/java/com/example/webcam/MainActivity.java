@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private String mIP = "10.0.3.2";
+    private String mIP = "10.0.2.2";
     private int mPort = 8000;
 
     public void setNetworkConfig(String ip, int port){
