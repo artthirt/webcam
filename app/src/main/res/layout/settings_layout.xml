@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="right">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ip_address">
+        </TextView>
+        <EditText
+            android:id="@+id/ip_address"
+            android:inputType="number|numberDecimal"
+            android:digits="0123456789."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </EditText>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ip_port">
+        </TextView>
+        <EditText
+            android:id="@+id/ip_port"
+            android:inputType="number|numberDecimal"
+            android:digits="0123456789"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </EditText>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/settings_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/action_ok" />
+
+
+</LinearLayout>
