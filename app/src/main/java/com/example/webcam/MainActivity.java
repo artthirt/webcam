@@ -118,8 +118,9 @@ public class MainActivity extends AppCompatActivity {
                     mCameras[CAMERA_FRONT].closeCamera();
 
                 if(mCameras[CAMERA_BACK] != null){
-                    if(!mCameras[CAMERA_BACK].isOpen())
-                        mCameras[CAMERA_BACK].openCamera();
+                    if(mCameras[CAMERA_BACK].isOpen())
+                        mCameras[CAMERA_BACK].closeCamera();
+                    mCameras[CAMERA_BACK].openCamera();
                 }
             }
         });
@@ -136,8 +137,12 @@ public class MainActivity extends AppCompatActivity {
         if(mTextView == null)
             return;
 
+        String error = "";
+        if(mCameras[CAMERA_BACK].isError()){
+            error = "CAMERA BACK got error";
+        }
         mTextView.setText("CAMERA BACK: frames count " + mCameras[CAMERA_BACK].getFramesCount() + "\n" +
-                "CAMERA FRONT: frames count " + mCameras[CAMERA_FRONT].getFramesCount() + "\n");
+                "CAMERA FRONT: frames count " + mCameras[CAMERA_FRONT].getFramesCount() + "\n" + error);
     }
 
     /** Check if this device has a camera */

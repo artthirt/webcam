@@ -29,6 +29,8 @@ import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 import static com.example.webcam.MainActivity.LOG_TAG;
@@ -49,6 +51,9 @@ public class CameraService {
     private TextureView mTexView;
     private Handler mHandler = null;
     private CaptureRequest.Builder mBuilder = null;
+    private boolean mIsOpen = false;
+    private boolean mIsError = false;
+    private boolean mIsRestart = false;
 
     private int mFramesCount = 0;
 
@@ -62,6 +67,10 @@ public class CameraService {
 
     public int getFramesCount(){
         return mFramesCount;
+    }
+
+    public boolean isError(){
+        return mIsError;
     }
 
     public Size sizes[] = null;
@@ -82,8 +91,19 @@ public class CameraService {
         @Override
         public void onError(@NonNull CameraDevice camera, int error) {
             Log.i(LOG_TAG, "error " + error);
+            mIsError = true;
+            if(mIsOpen)
+                mIsRestart = true;
         }
     };
+
+    private void reOpenCamera() {
+        mIsRestart = false;
+        closeCamera();
+        openCamera();
+    }
+
+    public Timer mTimer = new Timer();
 
     public CameraService(Context context, CameraManager camManager, String camId, TextureView texView){
         mCamManager = camManager;
@@ -94,6 +114,14 @@ public class CameraService {
         //byte data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
         //int len = senddata(data);
         //Log.i(LOG_TAG, "len " + len);
+        mTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(mIsRestart){
+                    reOpenCamera();
+                }
+            }
+        }, 1000, 1000);
     }
 
     public void setHandler(Handler handler){
@@ -110,9 +138,11 @@ public class CameraService {
         try{
             if(checkSelfPermission(mContex,  Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
                 mCamManager.openCamera(mCamId, mCamCallback, mHandler);
+                mIsOpen = true;
             }
         }catch (CameraAccessException e){
             Log.i(LOG_TAG, e.getMessage());
+            mIsError = true;
         }
     }
 
@@ -121,6 +151,7 @@ public class CameraService {
             mCamDev.close();
             mCamDev = null;
         }
+        mIsOpen = false;
     }
 
     private Surface mSurface = null;
