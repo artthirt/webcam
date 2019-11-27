@@ -37,8 +37,8 @@ Java_com_example_webcam_CameraService_senddata(JNIEnv* env, jclass obj, jbyteArr
 //////////////////////////////////////////////
 
 sendasf::sendasf()
-: m_port(1234)
-, m_host(inet_addr("10.0.2.1"))
+: m_port(8000)
+, m_host(inet_addr("10.0.3.2"))
 {
 
 }

@@ -15,7 +15,9 @@ DataStream::DataStream() {
 DataStream::DataStream(vector<char> *input)
 : m_input(input)
 {
-
+    if(m_input){
+        m_input->reserve(65536);
+    }
 }
 
 DataStream &DataStream::operator<<(uint8_t val) {
