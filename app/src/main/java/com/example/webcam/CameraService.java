@@ -14,6 +14,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.util.LogPrinter;
@@ -29,6 +30,7 @@ import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -164,7 +166,7 @@ public class CameraService {
         if(sizes != null) {
             Size sout = sizes[0];
             for (Size s1 : sizes) {
-                if(s1.getWidth() == 1920){
+                if(s1.getWidth() == 1920 && s1.getHeight() == 1080){
                     s = s1;
                     break;
                 }
@@ -178,7 +180,7 @@ public class CameraService {
             s = new Size(640, 480);
         }
 
-        mImageReader = ImageReader.newInstance(s.getWidth(), s.getHeight(), ImageFormat.JPEG, 10);
+        mImageReader = ImageReader.newInstance(s.getWidth(), s.getHeight(), ImageFormat.JPEG, 30);
         mImageReader.setOnImageAvailableListener(mImageCaptureListener, null);
 
         SurfaceTexture texture = mTexView.getSurfaceTexture();
@@ -226,6 +228,9 @@ public class CameraService {
         }
     };
 
+    static int mCurrentThreads = 0;
+    static int mMaxThreads = 20;
+
     static class CapturedImageSaver implements Runnable{
         private Image mCapture;
         private String mIP;
@@ -243,9 +248,33 @@ public class CameraService {
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
 
-            //Log.i(LOG_TAG, "size " + mCapture.getWidth() + "x" + mCapture.getHeight() + ", " + bytes.length);
-            senddata(bytes, mIP, mPort);
+            Log.i(LOG_TAG, "size " + mCapture.getWidth() + "x" + mCapture.getHeight() +
+                    ", " + bytes.length + ", currentThreads " + mCurrentThreads);
+            //senddata(bytes, mIP, mPort);
+            if(mCurrentThreads < mMaxThreads) {
+                mCurrentThreads++;
+                new SenderTask(mIP, mPort).execute(bytes);
+            }
             mCapture.close();
         }
     };
+
+    static class SenderTask extends AsyncTask<byte[], Void, Void>{
+
+        private String mIP;
+        private int mPort;
+
+        public SenderTask(String ip, int port){
+            mIP = ip;
+            mPort = port;
+        }
+
+        @Override
+        protected Void doInBackground(byte[]... bytes) {
+            senddata(bytes[0], mIP, mPort);
+            Log.i(LOG_TAG, "size " + bytes[0].length);
+            mCurrentThreads--;
+            return null;
+        }
+    }
 }
