@@ -14,6 +14,8 @@
 
 #include <string>
 
+#include "jpegenc.h"
+
 #include "GenASFPkts.h"
 
 extern "C" JNIEXPORT jint JNICALL
@@ -53,7 +55,6 @@ void sendasf::send_to_ip(int sock, const char *data, int len)
     int size = sendto(sock, data, len, 0, (sockaddr*)&local, sizeof(local));
     int err = errno;
 }
-
 
 void sendasf::send_to_ip(const char *data, int len, const char* ip, unsigned short port)
 {

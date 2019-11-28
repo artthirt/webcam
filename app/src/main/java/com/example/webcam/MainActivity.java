@@ -24,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.TextureView;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -56,6 +57,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.flags |= WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+        //params.screenBrightness = 0;
+        getWindow().setAttributes(params);
 
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                 ||
@@ -100,6 +106,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }else{
                     Log.i(LOG_TAG, "Camera do not support JPEG");
+                }
+
+                int fmts[] = confMap.getOutputFormats();
+                for(int fmt: fmts){
+                    Log.i(LOG_TAG, "output format " + fmt);
                 }
 
                 mCameras[id] = new CameraService(this, mCameraManager, camId, mImageView);

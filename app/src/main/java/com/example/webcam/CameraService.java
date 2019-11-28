@@ -16,6 +16,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.util.LogPrinter;
 import android.util.Size;
@@ -56,6 +57,9 @@ public class CameraService {
     private boolean mIsOpen = false;
     private boolean mIsError = false;
     private boolean mIsRestart = false;
+
+    private HandlerThread mImageReaderHandlerThread = null;
+    private Handler mImageReaderHandler = null;
 
     private int mFramesCount = 0;
 
@@ -124,6 +128,10 @@ public class CameraService {
                 }
             }
         }, 1000, 1000);
+
+        mImageReaderHandlerThread = new HandlerThread("ImageReaderHandlerThread" + camId);
+        mImageReaderHandlerThread.start();
+        mImageReaderHandler = new Handler(mImageReaderHandlerThread.getLooper());
     }
 
     public void setHandler(Handler handler){
@@ -180,14 +188,14 @@ public class CameraService {
             s = new Size(640, 480);
         }
 
-        mImageReader = ImageReader.newInstance(s.getWidth(), s.getHeight(), ImageFormat.JPEG, 30);
-        mImageReader.setOnImageAvailableListener(mImageCaptureListener, null);
+        mImageReader = ImageReader.newInstance(s.getWidth(), s.getHeight(), ImageFormat.YUV_420_888, 5);
+        mImageReader.setOnImageAvailableListener(mImageCaptureListener, mImageReaderHandler);
 
         SurfaceTexture texture = mTexView.getSurfaceTexture();
         mSurface = new Surface(texture);
 
         try{
-            mBuilder = mCamDev.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            mBuilder = mCamDev.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
             mBuilder.addTarget(mSurface);
             mBuilder.addTarget(mImageReader.getSurface());
 
@@ -195,7 +203,12 @@ public class CameraService {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
                     mCaptureSession = session;
-                    updatePreview();
+                    mBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+                    try{
+                        mCaptureSession.setRepeatingRequest(mBuilder.build(), mCaptureCallback, mHandler);
+                    }catch (CameraAccessException e){
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
@@ -208,17 +221,18 @@ public class CameraService {
         }
     }
 
-    private void updatePreview(){
-        if(mCamDev == null || mBuilder == null)
-            return;
-
-        mBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-        try{
-            mCaptureSession.setRepeatingRequest(mBuilder.build(), null, mHandler);
-        }catch (CameraAccessException e){
-            e.printStackTrace();
+    private CameraCaptureSession.CaptureCallback mCaptureCallback = new CameraCaptureSession.CaptureCallback() {
+        @Override
+        public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+            super.onCaptureCompleted(session, request, result);
+            Log.i(LOG_TAG, "capture completed");
         }
-    }
+
+        @Override
+        public void onCaptureSequenceCompleted(@NonNull CameraCaptureSession session, int sequenceId, long frameNumber) {
+            super.onCaptureSequenceCompleted(session, sequenceId, frameNumber);
+        }
+    };
 
     final ImageReader.OnImageAvailableListener mImageCaptureListener = new ImageReader.OnImageAvailableListener() {
         @Override
@@ -248,13 +262,23 @@ public class CameraService {
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
 
+            ByteBuffer buffer1 = mCapture.getPlanes()[1].getBuffer();
+            byte[] bytes1 = new byte[buffer1.remaining()];
+
+            ByteBuffer buffer2 = mCapture.getPlanes()[2].getBuffer();
+            byte[] bytes2 = new byte[buffer2.remaining()];
+
             Log.i(LOG_TAG, "size " + mCapture.getWidth() + "x" + mCapture.getHeight() +
+                    ", planes " + mCapture.getPlanes().length +
+                    ", plane0 " + bytes.length +
+                    ", plane1 " + bytes1.length +
+                    ", plane2 " + bytes2.length +
                     ", " + bytes.length + ", currentThreads " + mCurrentThreads);
             //senddata(bytes, mIP, mPort);
-            if(mCurrentThreads < mMaxThreads) {
-                mCurrentThreads++;
-                new SenderTask(mIP, mPort).execute(bytes);
-            }
+//            if(mCurrentThreads < mMaxThreads) {
+//                mCurrentThreads++;
+//                new SenderTask(mIP, mPort).execute(bytes);
+//            }
             mCapture.close();
         }
     };
