@@ -127,7 +127,7 @@ bool jpegenc::encode(const bytearray input[3], int width, int height, bytearray&
 
     cinfo.image_width = width; 	/* image width and height, in pixels */
     cinfo.image_height = height;
-    cinfo.input_components = 3;		/* # of color components per pixel */
+	cinfo.input_components = 3;		/* # of color components per pixel */
     cinfo.in_color_space = JCS_YCbCr; 	/* colorspace of input image */
 
     cinfo.jpeg_color_space = JCS_YCbCr;
@@ -145,19 +145,32 @@ bool jpegenc::encode(const bytearray input[3], int width, int height, bytearray&
 
     int type = 3;
 
-    JSAMPROW row_pointer[3];
+	JSAMPROW row_pointer[1];
     row_stride1 = width;	/* JSAMPLEs per row in image_buffer */
     row_stride2 = width/2;
 
     if(type == 3){
 
+		bytearray row;
+		row.resize(row_stride1 * 3);
+
         int cur = 0;
         while (cinfo.next_scanline < cinfo.image_height) {
 
-            row_pointer[0] = (JSAMPROW)input[0].data() + cur * row_stride1;
-            row_pointer[1] = (JSAMPROW)input[1].data() + cur * row_stride2;
-            row_pointer[2] = (JSAMPROW)input[2].data() + cur * row_stride2;
-            (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+			const char* d1 = input[0].data() + cur * row_stride1;
+			const char* d2 = input[1].data() + cur * row_stride2;
+			const char* d3 = input[2].data() + cur * row_stride2;
+			for(int i = 0; i < row_stride2; ++i){
+				row[i * 6 + 0] = d1[i * 2 + 0];
+				row[i * 6 + 1] = d2[i];
+				row[i * 6 + 2] = d3[i];
+				row[i * 6 + 3] = d1[i * 2 + 1];
+				row[i * 6 + 4] = d2[i];
+				row[i * 6 + 5] = d3[i];
+			}
+
+			row_pointer[0] = (JSAMPROW)row.data();
+			(void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
             cur++;
         }
     }
