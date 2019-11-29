@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.4.1)
 find_library(log-lib log)
 
 add_library(sendasf SHARED
-        sendasf.cpp GenASFPkts.cpp DataStream.cpp jpegenc.cpp
+        sendasf.cpp GenASFPkts.cpp DataStream.cpp jpegenc.cpp SenderSingleton.cpp
         )
 
 include_directories(.

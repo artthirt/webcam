@@ -44,7 +44,8 @@ public class CameraService {
         System.loadLibrary("sendasf");
     }
 
-    public static native int senddata(byte[] data, String ip, int port);
+    public static native int senddata(byte[][] data, int width, int height, String ip, int port);
+    public static native int senddata_jpeg(byte[] data, String ip, int port);
 
     private String mCamId;
     private CameraDevice mCamDev = null;
@@ -188,7 +189,7 @@ public class CameraService {
             s = new Size(640, 480);
         }
 
-        mImageReader = ImageReader.newInstance(s.getWidth(), s.getHeight(), ImageFormat.YUV_420_888, 5);
+        mImageReader = ImageReader.newInstance(s.getWidth(), s.getHeight(), ImageFormat.JPEG, 5);
         mImageReader.setOnImageAvailableListener(mImageCaptureListener, mImageReaderHandler);
 
         SurfaceTexture texture = mTexView.getSurfaceTexture();
@@ -243,7 +244,7 @@ public class CameraService {
     };
 
     static int mCurrentThreads = 0;
-    static int mMaxThreads = 20;
+    static int mMaxThreads = 3;
 
     static class CapturedImageSaver implements Runnable{
         private Image mCapture;
@@ -262,23 +263,24 @@ public class CameraService {
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
 
-            ByteBuffer buffer1 = mCapture.getPlanes()[1].getBuffer();
-            byte[] bytes1 = new byte[buffer1.remaining()];
-
-            ByteBuffer buffer2 = mCapture.getPlanes()[2].getBuffer();
-            byte[] bytes2 = new byte[buffer2.remaining()];
+//            ByteBuffer buffer1 = mCapture.getPlanes()[1].getBuffer();
+//            byte[] bytes1 = new byte[buffer1.remaining()];
+//
+//            ByteBuffer buffer2 = mCapture.getPlanes()[2].getBuffer();
+//            byte[] bytes2 = new byte[buffer2.remaining()];
 
             Log.i(LOG_TAG, "size " + mCapture.getWidth() + "x" + mCapture.getHeight() +
                     ", planes " + mCapture.getPlanes().length +
                     ", plane0 " + bytes.length +
-                    ", plane1 " + bytes1.length +
-                    ", plane2 " + bytes2.length +
+//                    ", plane1 " + bytes1.length +
+//                    ", plane2 " + bytes2.length +
                     ", " + bytes.length + ", currentThreads " + mCurrentThreads);
             //senddata(bytes, mIP, mPort);
-//            if(mCurrentThreads < mMaxThreads) {
-//                mCurrentThreads++;
-//                new SenderTask(mIP, mPort).execute(bytes);
-//            }
+            if(mCurrentThreads < mMaxThreads) {
+                mCurrentThreads++;
+//                byte[][] planes = {bytes, bytes1, bytes2};
+                new SenderTask(mCapture.getWidth(), mCapture.getHeight(), mIP, mPort).execute(bytes);
+            }
             mCapture.close();
         }
     };
@@ -287,15 +289,19 @@ public class CameraService {
 
         private String mIP;
         private int mPort;
+        private int mW;
+        private int mH;
 
-        public SenderTask(String ip, int port){
+        public SenderTask(int w, int h, String ip, int port){
             mIP = ip;
             mPort = port;
+            mW = w;
+            mH = h;
         }
 
         @Override
         protected Void doInBackground(byte[]... bytes) {
-            senddata(bytes[0], mIP, mPort);
+            senddata_jpeg(bytes[0], mIP, mPort);
             Log.i(LOG_TAG, "size " + bytes[0].length);
             mCurrentThreads--;
             return null;
