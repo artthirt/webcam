@@ -200,6 +200,8 @@ public class CameraService {
             mBuilder.addTarget(mSurface);
             mBuilder.addTarget(mImageReader.getSurface());
 
+            mBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)40);
+
             mCamDev.createCaptureSession(Arrays.asList(mSurface, mImageReader.getSurface()), new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
