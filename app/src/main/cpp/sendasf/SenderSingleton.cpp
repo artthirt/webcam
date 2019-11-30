@@ -13,7 +13,7 @@
 #include <errno.h>
 #include <chrono>
 
-#include "jpegenc.h"
+//#include "jpegenc.h"
 #include "GenASFPkts.h"
 
 
@@ -27,8 +27,8 @@ void Image::copy(int index, char *data, int len)
 
 void Image::encode()
 {
-    jpegenc enc;
-    enc.encode(planes, width, height, data, 100);
+//    jpegenc enc;
+//    enc.encode(planes, width, height, data, 100);
 
     done = true;
 }
