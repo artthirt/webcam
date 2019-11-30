@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
@@ -55,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private Menu mMenu = null;
 
     private Timer mTimer = new Timer();
+
+    private SharedPreferences mPrefs = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
                 mCameras[id] = new CameraService(this, mCameraManager, camId, mImageView);
                 mCameras[id].sizes = sizesJPEG;
             }
+
+            mPrefs = getSharedPreferences("config", Context.MODE_PRIVATE);
+
+            mIP = mPrefs.getString("ip", "10.0.2.2");
+            mPort = mPrefs.getInt("port", 8000);
 
             setNetworkConfig(mIP, mPort);
         }catch (CameraAccessException e) {
@@ -242,6 +250,13 @@ public class MainActivity extends AppCompatActivity {
         }
         if(mCameras[CAMERA_FRONT] != null){
             mCameras[CAMERA_FRONT].setNetwork(mIP, mPort);
+        }
+
+        if(mPrefs != null){
+            SharedPreferences.Editor editor = mPrefs.edit();
+            editor.putString("ip", mIP);
+            editor.putInt("port", mPort);
+            editor.commit();
         }
     }
 }
