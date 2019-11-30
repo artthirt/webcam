@@ -197,12 +197,12 @@ public class CameraService {
 
         try{
             mBuilder = mCamDev.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
-            mBuilder.addTarget(mSurface);
+            //mBuilder.addTarget(mSurface);
             mBuilder.addTarget(mImageReader.getSurface());
 
-            mBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)40);
+            mBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)50);
 
-            mCamDev.createCaptureSession(Arrays.asList(mSurface, mImageReader.getSurface()), new CameraCaptureSession.StateCallback() {
+            mCamDev.createCaptureSession(Arrays.asList(/*mSurface, */mImageReader.getSurface()), new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
                     mCaptureSession = session;

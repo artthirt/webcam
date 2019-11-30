@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private CameraService[] mCameras = null;
     private CameraManager mCameraManager = null;
 
+    private String mIP = "192.168.1.47";
+    private int mPort = 8000;
+
     private HandlerThread mBackgroundThread = null;
     private Handler mBackgroundHandler = null;
 
@@ -229,9 +232,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-    private String mIP = "10.0.2.2";
-    private int mPort = 8000;
 
     public void setNetworkConfig(String ip, int port){
         mIP = ip;
