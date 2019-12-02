@@ -74,6 +74,11 @@ SenderSingleton::SenderSingleton()
 {
     m_threadImages.reset(new std::thread(std::bind(&SenderSingleton::doAddImage, this)));
     m_threadSender.reset(new std::thread(std::bind(&SenderSingleton::doSendData, this)));
+
+    m_sock = socket(AF_INET, SOCK_DGRAM, 0);
+    int buf = 2 * 1024 * 1024;
+    setsockopt(m_sock, SOL_SOCKET, SO_SNDBUF, &buf, sizeof(buf));
+    int err = errno;
 }
 
 SenderSingleton::~SenderSingleton()
@@ -86,6 +91,8 @@ SenderSingleton::~SenderSingleton()
     if(m_threadSender.get()){
         m_threadSender->join();
     }
+
+    close(m_sock);
 }
 
 SenderSingleton &SenderSingleton::instance()
@@ -106,17 +113,12 @@ void SenderSingleton::send_to_ip(int sock, const char *data, int len)
 
 void SenderSingleton::send_to_ip(const bytearray &data)
 {
-    int sock = socket(AF_INET, SOCK_DGRAM, 0);
-    int err = errno;
-
     GenASFPkts asf;
     std::vector<bytearray> pkts = asf.getPkts(data.data(), data.size());
 
     for(const bytearray& ba: pkts){
-        send_to_ip(sock, ba.data(), ba.size());
+        send_to_ip(m_sock, ba.data(), ba.size());
     }
-
-    close(sock);
 }
 
 void SenderSingleton::doAddImage()

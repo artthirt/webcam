@@ -56,6 +56,7 @@ private:
     std::mutex m_mutex;
     std::mutex m_mutexS;
     bool m_done;
+    int m_sock;
 
     std::unique_ptr<std::thread> m_threadImages;
     std::unique_ptr<std::thread> m_threadSender;

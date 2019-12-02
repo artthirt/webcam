@@ -84,7 +84,7 @@ std::vector<bytearray> GenASFPkts::getPkts(const char *data, int len) {
 
     uint FragmentOffset = 0;
     uint FrameSize = len;
-    uint MaxSizePacket = 32768;
+    uint MaxSizePacket = 60000;
 
     while(!done){
         bytearray output;

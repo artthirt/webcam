@@ -79,7 +79,10 @@ public class CameraService {
 
     private Surface mEncodeSurface = null;
     private int mMediaFrameKeyCount = 0;
-    private int mMediaFrameKeyCountMax = 65;
+    private int mMediaFrameKeyCountMax = 15;
+
+    public static int BITRATE = 20000000;
+    public static int FRAMERATE = 60;
 
     public void setNetwork(String IP, int port){
         mIP = IP;
@@ -251,9 +254,9 @@ public class CameraService {
                 mMediaCodec = MediaCodec.createEncoderByType("video/avc");
                 MediaFormat format = MediaFormat.createVideoFormat("video/avc", s.getWidth(), s.getHeight());
                 format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-                format.setInteger(MediaFormat.KEY_BIT_RATE, 5000000);
-                format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
-                format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 3);
+                format.setInteger(MediaFormat.KEY_BIT_RATE, BITRATE);
+                format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAMERATE);
+                format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 2);
                 mMediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
                 mMediaCodec.setCallback(mMediaCallback);
                 mEncodeSurface = mMediaCodec.createInputSurface();
@@ -336,12 +339,12 @@ public class CameraService {
 //            ByteBuffer buffer2 = mCapture.getPlanes()[2].getBuffer();
 //            byte[] bytes2 = new byte[buffer2.remaining()];
 
-            Log.i(LOG_TAG, "size " + mCapture.getWidth() + "x" + mCapture.getHeight() +
-                    ", planes " + mCapture.getPlanes().length +
-                    ", plane0 " + bytes.length +
-//                    ", plane1 " + bytes1.length +
-//                    ", plane2 " + bytes2.length +
-                    ", " + bytes.length + ", currentThreads " + mCurrentThreads);
+//            Log.i(LOG_TAG, "size " + mCapture.getWidth() + "x" + mCapture.getHeight() +
+//                    ", planes " + mCapture.getPlanes().length +
+//                    ", plane0 " + bytes.length +
+////                    ", plane1 " + bytes1.length +
+////                    ", plane2 " + bytes2.length +
+//                    ", " + bytes.length + ", currentThreads " + mCurrentThreads);
             //senddata(bytes, mIP, mPort);
             if(mCurrentThreads < mMaxThreads) {
                 mCurrentThreads++;
@@ -389,9 +392,9 @@ public class CameraService {
             mMediaFrameKeyCount++;
 
             if(mMediaFrameKeyCount > mMediaFrameKeyCountMax) {
-                Bundle params = new Bundle();
-                params.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
-                mMediaCodec.setParameters(params);
+//                Bundle params = new Bundle();
+//                params.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
+//                mMediaCodec.setParameters(params);
 
                 mMediaFrameKeyCount = 0;
                 new SenderTask(0, 0, mIP, mPort).execute(mCodeConfigBytes);
@@ -426,7 +429,7 @@ public class CameraService {
         @Override
         protected Void doInBackground(byte[]... bytes) {
             senddata_jpeg(bytes[0], mIP, mPort);
-            Log.i(LOG_TAG, "size " + bytes[0].length);
+            //Log.i(LOG_TAG, "size " + bytes[0].length);
             mCurrentThreads--;
             return null;
         }
