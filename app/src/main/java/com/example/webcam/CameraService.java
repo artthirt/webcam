@@ -18,6 +18,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -77,6 +78,8 @@ public class CameraService {
     private boolean mUsePreview = false;
 
     private Surface mEncodeSurface = null;
+    private int mMediaFrameKeyCount = 0;
+    private int mMediaFrameKeyCountMax = 5;
 
     public void setNetwork(String IP, int port){
         mIP = IP;
@@ -186,6 +189,10 @@ public class CameraService {
     }
 
     public void closeCamera(){
+        if(mMediaCodec != null){
+            mMediaCodec.stop();
+            mMediaCodec.release();;
+        }
         if(mCamDev != null){
             mCamDev.close();
             mCamDev = null;
@@ -196,6 +203,7 @@ public class CameraService {
     private Surface mSurface = null;
     private ImageReader mImageReader = null;
     private MediaCodec mMediaCodec = null;
+    private byte[] mCodeConfigBytes = null;
 
     private void createCameraPreviewSession(){
 
@@ -245,7 +253,7 @@ public class CameraService {
                 format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
                 format.setInteger(MediaFormat.KEY_BIT_RATE, 5000000);
                 format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
-                format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+                format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 3);
                 mMediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
                 mMediaCodec.setCallback(mMediaCallback);
                 mEncodeSurface = mMediaCodec.createInputSurface();
@@ -349,6 +357,12 @@ public class CameraService {
         @Override
         public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
             Log.i(LOG_TAG, "available");
+//            ByteBuffer inputBuffer = codec.getInputBuffer(index);
+//            int inputBufferIndex = codec.dequeueInputBuffer(10000);
+//            if(inputBufferIndex >= 0){
+//                codec.queueInputBuffer(inputBufferIndex, 0, inputBuffer.limit(), 10000,
+//                        MediaCodec.BUFFER_FLAG_KEY_FRAME);
+//            }
         }
 
         @Override
@@ -356,6 +370,12 @@ public class CameraService {
             ByteBuffer buffer = mMediaCodec.getOutputBuffer(index);
             byte data[] = new byte[buffer.remaining()];
             buffer.get(data);
+
+            boolean isConfigFrame = (info.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0;
+            if(isConfigFrame) {
+                Log.i(LOG_TAG, "Config frame generated");
+                mCodeConfigBytes = data;
+            }
 
             if(mCurrentThreads < mMaxThreads) {
                 mCurrentThreads++;
@@ -365,6 +385,17 @@ public class CameraService {
 
             mMediaCodec.releaseOutputBuffer(index, false);
             mFramesCount++;
+
+            mMediaFrameKeyCount++;
+
+            if(mMediaFrameKeyCount > mMediaFrameKeyCountMax) {
+                Bundle params = new Bundle();
+                params.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
+                mMediaCodec.setParameters(params);
+
+                mMediaFrameKeyCount = 0;
+                new SenderTask(0, 0, mIP, mPort).execute(mCodeConfigBytes);
+            }
         }
 
         @Override
