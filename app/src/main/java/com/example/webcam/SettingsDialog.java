@@ -6,7 +6,9 @@ import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RadioButton;
 
 import static java.lang.Integer.parseInt;
 
@@ -28,6 +30,9 @@ public class SettingsDialog {
 
         final EditText eIP = (EditText)dialogView.findViewById(R.id.ip_address);
         final EditText ePort = (EditText)dialogView.findViewById(R.id.ip_port);
+        final CheckBox chPreview = (CheckBox)dialogView.findViewById(R.id.preview);
+        final RadioButton bJpeg = (RadioButton)dialogView.findViewById(R.id.JPEG);
+        final RadioButton bH264 = (RadioButton)dialogView.findViewById(R.id.H264);
 
         Button bOk = (Button)dialogView.findViewById(R.id.settings_ok);
 
@@ -41,6 +46,8 @@ public class SettingsDialog {
                 Editable sport = ePort.getText();
                 mPort = parseInt(sport.toString());
                 mMain.setNetworkConfig(mIP, mPort);
+                mMain.setUsePreview(chPreview.isChecked());
+                mMain.setTypeEncoding(bJpeg.isChecked()? 0 : 1);
                 if(mDlg != null){
                     mDlg.dismiss();
                 }

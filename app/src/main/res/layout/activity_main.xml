@@ -12,37 +12,64 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <TextureView
-            android:id="@+id/texture_view"
-            android:layout_width="300dp"
-            android:layout_height="400dp"
-            android:layout_marginTop="32dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.49"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-             />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:id="@+id/text_view" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal">
 
-            <Button
-                android:id="@+id/button_open_front"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/open_front" />
+                android:orientation="horizontal"
+                android:layout_alignParentBottom="true">
+                <Button
+                    android:id="@+id/button_open_front"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/open_front" />
+                <Button
+                    android:id="@+id/button_close_front"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/close_front" />
+            </LinearLayout>
 
-            <Button
-                android:id="@+id/button_open_back"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/open_back" />
+                android:orientation="horizontal"
+                android:layout_alignParentBottom="true">
+                <Button
+                    android:id="@+id/button_open_back"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/open_back" />
+                <Button
+                    android:id="@+id/button_close_back"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/close_back" />
+            </LinearLayout>
+
+            <TextureView
+                android:id="@+id/texture_view"
+                android:layout_width="300dp"
+                android:layout_height="400dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.49"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/text_view" />
 
         </LinearLayout>
 

@@ -14,6 +14,9 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
+import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -47,6 +50,9 @@ public class CameraService {
     public static native int senddata(byte[][] data, int width, int height, String ip, int port);
     public static native int senddata_jpeg(byte[] data, String ip, int port);
 
+    public static int CHOOSE_JPEG = 0;
+    public static int CHOOSE_H264 = 1;
+
     private String mCamId;
     private CameraDevice mCamDev = null;
     private CameraManager mCamManager = null;
@@ -66,10 +72,32 @@ public class CameraService {
 
     private String mIP = "10.0.2.2";
     private int mPort = 1234;
+    private int mQuality = 50;
+    private int mTypeEncode = CHOOSE_H264;
+    private boolean mUsePreview = false;
+
+    private Surface mEncodeSurface = null;
 
     public void setNetwork(String IP, int port){
         mIP = IP;
         mPort = port;
+    }
+
+    public void setQuality(int q){
+        mQuality = q;
+    }
+
+    public void setTypeEncode(int enc){
+        mTypeEncode = enc;
+    }
+
+    public void setUsePreview(boolean v){
+        mUsePreview = v;
+
+        if(isOpen()){
+            closeCamera();
+            openCamera();
+        }
     }
 
     public int getFramesCount(){
@@ -167,6 +195,7 @@ public class CameraService {
 
     private Surface mSurface = null;
     private ImageReader mImageReader = null;
+    private MediaCodec mMediaCodec = null;
 
     private void createCameraPreviewSession(){
 
@@ -189,26 +218,52 @@ public class CameraService {
             s = new Size(640, 480);
         }
 
-        mImageReader = ImageReader.newInstance(s.getWidth(), s.getHeight(), ImageFormat.JPEG, 5);
-        mImageReader.setOnImageAvailableListener(mImageCaptureListener, mImageReaderHandler);
-
         SurfaceTexture texture = mTexView.getSurfaceTexture();
         mSurface = new Surface(texture);
 
         try{
             mBuilder = mCamDev.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
-            //mBuilder.addTarget(mSurface);
-            mBuilder.addTarget(mImageReader.getSurface());
+            if(mUsePreview)
+                mBuilder.addTarget(mSurface);
 
-            mBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)50);
+            mBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)mQuality);
 
-            mCamDev.createCaptureSession(Arrays.asList(/*mSurface, */mImageReader.getSurface()), new CameraCaptureSession.StateCallback() {
+            List<Surface> inputSurf = null;
+
+            if(mTypeEncode == CHOOSE_JPEG) {
+                mImageReader = ImageReader.newInstance(s.getWidth(), s.getHeight(), ImageFormat.JPEG, 5);
+                mImageReader.setOnImageAvailableListener(mImageCaptureListener, mImageReaderHandler);
+                if(mUsePreview) {
+                    inputSurf = Arrays.asList(mSurface, mImageReader.getSurface());
+                }else{
+                    inputSurf = Arrays.asList(mImageReader.getSurface());
+                }
+                mBuilder.addTarget(mImageReader.getSurface());
+            }else{
+                mMediaCodec = MediaCodec.createEncoderByType("video/avc");
+                MediaFormat format = MediaFormat.createVideoFormat("video/avc", s.getWidth(), s.getHeight());
+                format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+                format.setInteger(MediaFormat.KEY_BIT_RATE, 5000000);
+                format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
+                format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+                mMediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+                mMediaCodec.setCallback(mMediaCallback);
+                mEncodeSurface = mMediaCodec.createInputSurface();
+                mMediaCodec.start();
+                if(mUsePreview) {
+                    inputSurf = Arrays.asList(mSurface, mEncodeSurface);
+                }else{
+                    inputSurf = Arrays.asList(mEncodeSurface);
+                }
+                mBuilder.addTarget(mEncodeSurface);
+            }
+            mCamDev.createCaptureSession(inputSurf, new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
                     mCaptureSession = session;
                     mBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
                     try{
-                        mCaptureSession.setRepeatingRequest(mBuilder.build(), mCaptureCallback, mHandler);
+                        mCaptureSession.setRepeatingRequest(mBuilder.build(), null, mHandler);
                     }catch (CameraAccessException e){
                         e.printStackTrace();
                     }
@@ -220,6 +275,8 @@ public class CameraService {
                 }
             }, mHandler);
         }catch(CameraAccessException e){
+            e.printStackTrace();
+        }catch (IOException e){
             e.printStackTrace();
         }
     }
@@ -284,6 +341,40 @@ public class CameraService {
                 new SenderTask(mCapture.getWidth(), mCapture.getHeight(), mIP, mPort).execute(bytes);
             }
             mCapture.close();
+        }
+    };
+
+    private MediaCodec.Callback mMediaCallback = new MediaCodec.Callback(){
+
+        @Override
+        public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
+            Log.i(LOG_TAG, "available");
+        }
+
+        @Override
+        public void onOutputBufferAvailable(@NonNull MediaCodec codec, int index, @NonNull MediaCodec.BufferInfo info) {
+            ByteBuffer buffer = mMediaCodec.getOutputBuffer(index);
+            byte data[] = new byte[buffer.remaining()];
+            buffer.get(data);
+
+            if(mCurrentThreads < mMaxThreads) {
+                mCurrentThreads++;
+//                byte[][] planes = {bytes, bytes1, bytes2};
+                new SenderTask(0, 0, mIP, mPort).execute(data);
+            }
+
+            mMediaCodec.releaseOutputBuffer(index, false);
+            mFramesCount++;
+        }
+
+        @Override
+        public void onError(@NonNull MediaCodec codec, @NonNull MediaCodec.CodecException e) {
+            Log.i(LOG_TAG, "Error " + e);
+        }
+
+        @Override
+        public void onOutputFormatChanged(@NonNull MediaCodec codec, @NonNull MediaFormat format) {
+
         }
     };
 

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:layout_margin="15dp"
     android:gravity="right">
 
     <LinearLayout
@@ -39,6 +40,29 @@
             android:layout_height="wrap_content">
         </EditText>
     </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/preview"
+        android:text="@string/preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <RadioButton
+            android:id="@+id/JPEG"
+            android:text="@string/use_jpeg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/H264"
+            android:checked="true"
+            android:text="@string/use_h264"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </RadioGroup>
 
     <Button
         android:id="@+id/settings_ok"

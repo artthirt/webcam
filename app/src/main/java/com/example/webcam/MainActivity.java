@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
+import android.graphics.Point;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -20,6 +21,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.util.Size;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -85,6 +87,11 @@ public class MainActivity extends AppCompatActivity {
         mCamBack = (Button)findViewById(R.id.button_open_back);
 
         mTextView = (TextView)findViewById(R.id.text_view);
+
+        Display d = getWindowManager().getDefaultDisplay();
+        Point sz = new Point();
+        d.getSize(sz);
+        mTextView.setHeight(sz.y - 150);
 
         mImageView = (TextureView)findViewById(R.id.texture_view);
 
@@ -257,6 +264,31 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("ip", mIP);
             editor.putInt("port", mPort);
             editor.commit();
+        }
+    }
+
+    public void setQualityJpeg(int q){
+        if(mCameras[CAMERA_BACK] != null){
+            mCameras[CAMERA_BACK].setQuality(q);
+        }
+        if(mCameras[CAMERA_FRONT] != null) {
+            mCameras[CAMERA_FRONT].setQuality(q);
+        }
+    }
+    public void setTypeEncoding(int v){
+        if(mCameras[CAMERA_BACK] != null){
+            mCameras[CAMERA_BACK].setQuality(v == 0? CameraService.CHOOSE_JPEG : CameraService.CHOOSE_H264);
+        }
+        if(mCameras[CAMERA_FRONT] != null) {
+            mCameras[CAMERA_FRONT].setQuality(v == 0? CameraService.CHOOSE_JPEG : CameraService.CHOOSE_H264);
+        }
+    }
+    public void setUsePreview(boolean u){
+        if(mCameras[CAMERA_BACK] != null){
+            mCameras[CAMERA_BACK].setUsePreview(u);
+        }
+        if(mCameras[CAMERA_FRONT] != null) {
+            mCameras[CAMERA_FRONT].setUsePreview(u);
         }
     }
 }
