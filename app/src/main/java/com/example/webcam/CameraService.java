@@ -79,7 +79,7 @@ public class CameraService {
 
     private Surface mEncodeSurface = null;
     private int mMediaFrameKeyCount = 0;
-    private int mMediaFrameKeyCountMax = 5;
+    private int mMediaFrameKeyCountMax = 65;
 
     public void setNetwork(String IP, int port){
         mIP = IP;
