@@ -82,7 +82,7 @@ public class CameraService {
     private int mMediaFrameKeyCountMax = 15;
 
     public static int BITRATE = 20000000;
-    public static int FRAMERATE = 60;
+    public static int FRAMERATE = 30;
 
     public void setNetwork(String IP, int port){
         mIP = IP;
