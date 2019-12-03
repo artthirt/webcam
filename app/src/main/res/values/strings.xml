@@ -12,4 +12,12 @@
     <string name="use_h264">H.264</string>
     <string name="close_back">CLOSE</string>
     <string name="close_front">CLOSE</string>
+    <string name="frame_rate">Частота</string>
+    <string name="frame_rate_value">30</string>
+    <string-array name="frame_rates">
+        <item>15</item>
+        <item>25</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
 </resources>

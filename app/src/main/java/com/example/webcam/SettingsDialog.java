@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.Spinner;
 
 import static java.lang.Integer.parseInt;
 
@@ -33,6 +34,8 @@ public class SettingsDialog {
         final CheckBox chPreview = (CheckBox)dialogView.findViewById(R.id.preview);
         final RadioButton bJpeg = (RadioButton)dialogView.findViewById(R.id.JPEG);
         final RadioButton bH264 = (RadioButton)dialogView.findViewById(R.id.H264);
+        final Spinner eFrameRate = (Spinner)dialogView.findViewById(R.id.frame_rate);
+        eFrameRate.setSelection(2);
 
         Button bOk = (Button)dialogView.findViewById(R.id.settings_ok);
 
@@ -48,6 +51,10 @@ public class SettingsDialog {
                 mMain.setNetworkConfig(mIP, mPort);
                 mMain.setUsePreview(chPreview.isChecked());
                 mMain.setTypeEncoding(bJpeg.isChecked()? 0 : 1);
+
+                int frame_rate = parseInt(eFrameRate.getSelectedItem().toString());
+                CameraService.FRAMERATE = frame_rate;
+
                 if(mDlg != null){
                     mDlg.dismiss();
                 }
