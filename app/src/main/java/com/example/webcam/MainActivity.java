@@ -42,9 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private CameraService[] mCameras = null;
     private CameraManager mCameraManager = null;
 
-    private String mIP = "192.168.1.47";
-    private int mPort = 8000;
-
     private HandlerThread mBackgroundThread = null;
     private Handler mBackgroundHandler = null;
 
@@ -132,10 +129,8 @@ public class MainActivity extends AppCompatActivity {
 
             mPrefs = getSharedPreferences("config", Context.MODE_PRIVATE);
 
-            mIP = mPrefs.getString("ip", "10.0.2.2");
-            mPort = mPrefs.getInt("port", 8000);
-
-            setNetworkConfig(mIP, mPort);
+            CameraService.HOST = mPrefs.getString("ip", "10.0.2.2");
+            CameraService.PORT = mPrefs.getInt("port", 8000);
         }catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -233,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
 //                Intent intent = new Intent(this, ServiceConnect.class);
 //                startService(intent);
 
-                SettingsDialog sd = new SettingsDialog(this, this, mIP, mPort);
+                SettingsDialog sd = new SettingsDialog(this, this);
                 sd.show();
                 return true;
             }
@@ -248,39 +243,23 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setNetworkConfig(String ip, int port){
-        mIP = ip;
-        mPort = port;
-
-        if(mCameras[CAMERA_BACK] != null){
-            mCameras[CAMERA_BACK].setNetwork(mIP, mPort);
-        }
-        if(mCameras[CAMERA_FRONT] != null){
-            mCameras[CAMERA_FRONT].setNetwork(mIP, mPort);
-        }
-
+    public void updateConfig(){
         if(mPrefs != null){
             SharedPreferences.Editor editor = mPrefs.edit();
-            editor.putString("ip", mIP);
-            editor.putInt("port", mPort);
+            editor.putString("ip", CameraService.HOST);
+            editor.putInt("port", CameraService.PORT);
+            editor.putInt("quality.jpeg", CameraService.QUALITY_JPEG);
+            editor.putInt("bitrate", CameraService.BITRATE);
             editor.commit();
         }
     }
 
-    public void setQualityJpeg(int q){
-        if(mCameras[CAMERA_BACK] != null){
-            mCameras[CAMERA_BACK].setQuality(q);
-        }
-        if(mCameras[CAMERA_FRONT] != null) {
-            mCameras[CAMERA_FRONT].setQuality(q);
-        }
-    }
     public void setTypeEncoding(int v){
         if(mCameras[CAMERA_BACK] != null){
-            mCameras[CAMERA_BACK].setQuality(v == 0? CameraService.CHOOSE_JPEG : CameraService.CHOOSE_H264);
+            mCameras[CAMERA_BACK].setTypeEncode(v == 0? CameraService.CHOOSE_JPEG : CameraService.CHOOSE_H264);
         }
         if(mCameras[CAMERA_FRONT] != null) {
-            mCameras[CAMERA_FRONT].setQuality(v == 0? CameraService.CHOOSE_JPEG : CameraService.CHOOSE_H264);
+            mCameras[CAMERA_FRONT].setTypeEncode(v == 0? CameraService.CHOOSE_JPEG : CameraService.CHOOSE_H264);
         }
     }
     public void setUsePreview(boolean u){

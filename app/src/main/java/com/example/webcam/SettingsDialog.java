@@ -16,11 +16,9 @@ import static java.lang.Integer.parseInt;
 public class SettingsDialog {
     AlertDialog.Builder mDialogBuilder;
 
-    private String mIP;
-    private int mPort;
     private MainActivity mMain;
 
-    public SettingsDialog(Activity act, MainActivity main, String ip, int port){
+    public SettingsDialog(Activity act, MainActivity main){
         mDialogBuilder = new AlertDialog.Builder(act);
         LayoutInflater inflater = act.getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.settings_layout, null);
@@ -37,20 +35,19 @@ public class SettingsDialog {
         final Spinner eFrameRate = (Spinner)dialogView.findViewById(R.id.frame_rate);
         final EditText eBitrate = (EditText)dialogView.findViewById(R.id.bitrate);
         eFrameRate.setSelection(2);
-        eBitrate.setText("" + CameraService.BITRATE);
 
         Button bOk = (Button)dialogView.findViewById(R.id.settings_ok);
 
-        eIP.setText(ip);
-        ePort.setText(Integer.toString(port));
+        eIP.setText(CameraService.HOST);
+        ePort.setText(Integer.toString(CameraService.PORT));
+        eBitrate.setText(Integer.toString(CameraService.BITRATE));
 
         bOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mIP = eIP.getText().toString();
+                CameraService.HOST = eIP.getText().toString();
                 Editable sport = ePort.getText();
-                mPort = parseInt(sport.toString());
-                mMain.setNetworkConfig(mIP, mPort);
+                CameraService.PORT = parseInt(sport.toString());
                 mMain.setUsePreview(chPreview.isChecked());
                 mMain.setTypeEncoding(bJpeg.isChecked()? 0 : 1);
 
@@ -58,6 +55,8 @@ public class SettingsDialog {
                 CameraService.FRAMERATE = frame_rate;
                 int bitrate = parseInt(eBitrate.getText().toString());
                 CameraService.BITRATE = bitrate;
+
+                mMain.updateConfig();
 
                 if(mDlg != null){
                     mDlg.dismiss();

@@ -18,24 +18,19 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
-import android.util.LogPrinter;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -71,9 +66,6 @@ public class CameraService {
 
     private int mFramesCount = 0;
 
-    private String mIP = "10.0.2.2";
-    private int mPort = 1234;
-    private int mQuality = 50;
     private int mTypeEncode = CHOOSE_H264;
     private boolean mUsePreview = false;
 
@@ -83,15 +75,9 @@ public class CameraService {
 
     public static int BITRATE = 20000000;
     public static int FRAMERATE = 30;
-
-    public void setNetwork(String IP, int port){
-        mIP = IP;
-        mPort = port;
-    }
-
-    public void setQuality(int q){
-        mQuality = q;
-    }
+    public static String HOST = "10.0.2.2";
+    public static int PORT = 8000;
+    public static int QUALITY_JPEG = 50;
 
     public void setTypeEncode(int enc){
         mTypeEncode = enc;
@@ -237,7 +223,7 @@ public class CameraService {
             if(mUsePreview)
                 mBuilder.addTarget(mSurface);
 
-            mBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)mQuality);
+            mBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)QUALITY_JPEG);
 
             List<Surface> inputSurf = null;
 
@@ -308,7 +294,7 @@ public class CameraService {
     final ImageReader.OnImageAvailableListener mImageCaptureListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            mHandler.post(new CapturedImageSaver(reader.acquireNextImage(), mIP, mPort));
+            mHandler.post(new CapturedImageSaver(reader.acquireNextImage(), HOST, PORT));
             mFramesCount++;
         }
     };
@@ -383,7 +369,7 @@ public class CameraService {
             if(mCurrentThreads < mMaxThreads) {
                 mCurrentThreads++;
 //                byte[][] planes = {bytes, bytes1, bytes2};
-                new SenderTask(0, 0, mIP, mPort).execute(data);
+                new SenderTask(0, 0, HOST, PORT).execute(data);
             }
 
             mMediaCodec.releaseOutputBuffer(index, false);
@@ -397,7 +383,7 @@ public class CameraService {
 //                mMediaCodec.setParameters(params);
 
                 mMediaFrameKeyCount = 0;
-                new SenderTask(0, 0, mIP, mPort).execute(mCodeConfigBytes);
+                new SenderTask(0, 0, HOST, PORT).execute(mCodeConfigBytes);
             }
         }
 
