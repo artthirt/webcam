@@ -14,6 +14,7 @@
     <string name="close_front">CLOSE</string>
     <string name="frame_rate">Частота</string>
     <string name="frame_rate_value">30</string>
+    <string name="bitrate">Bitrate</string>
     <string-array name="frame_rates">
         <item>15</item>
         <item>25</item>

@@ -35,7 +35,9 @@ public class SettingsDialog {
         final RadioButton bJpeg = (RadioButton)dialogView.findViewById(R.id.JPEG);
         final RadioButton bH264 = (RadioButton)dialogView.findViewById(R.id.H264);
         final Spinner eFrameRate = (Spinner)dialogView.findViewById(R.id.frame_rate);
+        final EditText eBitrate = (EditText)dialogView.findViewById(R.id.bitrate);
         eFrameRate.setSelection(2);
+        eBitrate.setText("" + CameraService.BITRATE);
 
         Button bOk = (Button)dialogView.findViewById(R.id.settings_ok);
 
@@ -54,6 +56,8 @@ public class SettingsDialog {
 
                 int frame_rate = parseInt(eFrameRate.getSelectedItem().toString());
                 CameraService.FRAMERATE = frame_rate;
+                int bitrate = parseInt(eBitrate.getText().toString());
+                CameraService.BITRATE = bitrate;
 
                 if(mDlg != null){
                     mDlg.dismiss();

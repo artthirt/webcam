@@ -64,6 +64,23 @@
 <!--            android:layout_height="wrap_content">-->
 <!--        </EditText>-->
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/bitrate">
+        </TextView>
+        <EditText
+            android:id="@+id/bitrate"
+            android:inputType="number|numberDecimal"
+            android:digits="0123456789"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </EditText>
+    </LinearLayout>
 
     <CheckBox
         android:id="@+id/preview"
