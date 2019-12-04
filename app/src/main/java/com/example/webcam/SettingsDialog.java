@@ -41,6 +41,7 @@ public class SettingsDialog {
         eIP.setText(CameraService.HOST);
         ePort.setText(Integer.toString(CameraService.PORT));
         eBitrate.setText(Integer.toString(CameraService.BITRATE));
+        chPreview.setChecked(CameraService.USE_PREVIEW);
 
         bOk.setOnClickListener(new View.OnClickListener() {
             @Override

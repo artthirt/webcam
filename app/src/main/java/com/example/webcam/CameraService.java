@@ -61,13 +61,15 @@ public class CameraService {
     private boolean mIsError = false;
     private boolean mIsRestart = false;
 
+    public int widthImage = 0;
+    public int heightImage = 0;
+
     private HandlerThread mImageReaderHandlerThread = null;
     private Handler mImageReaderHandler = null;
 
     private int mFramesCount = 0;
 
     private int mTypeEncode = CHOOSE_H264;
-    private boolean mUsePreview = false;
 
     private Surface mEncodeSurface = null;
     private int mMediaFrameKeyCount = 0;
@@ -78,13 +80,14 @@ public class CameraService {
     public static String HOST = "10.0.2.2";
     public static int PORT = 8000;
     public static int QUALITY_JPEG = 50;
+    public static boolean USE_PREVIEW = false;
 
     public void setTypeEncode(int enc){
         mTypeEncode = enc;
     }
 
     public void setUsePreview(boolean v){
-        mUsePreview = v;
+        USE_PREVIEW = v;
 
         if(isOpen()){
             closeCamera();
@@ -220,17 +223,19 @@ public class CameraService {
 
         try{
             mBuilder = mCamDev.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
-            if(mUsePreview)
+            if(USE_PREVIEW)
                 mBuilder.addTarget(mSurface);
 
             mBuilder.set(CaptureRequest.JPEG_QUALITY, (byte)QUALITY_JPEG);
 
             List<Surface> inputSurf = null;
 
+            widthImage = s.getWidth();
+            heightImage = s.getHeight();
             if(mTypeEncode == CHOOSE_JPEG) {
                 mImageReader = ImageReader.newInstance(s.getWidth(), s.getHeight(), ImageFormat.JPEG, 5);
                 mImageReader.setOnImageAvailableListener(mImageCaptureListener, mImageReaderHandler);
-                if(mUsePreview) {
+                if(USE_PREVIEW) {
                     inputSurf = Arrays.asList(mSurface, mImageReader.getSurface());
                 }else{
                     inputSurf = Arrays.asList(mImageReader.getSurface());
@@ -247,7 +252,7 @@ public class CameraService {
                 mMediaCodec.setCallback(mMediaCallback);
                 mEncodeSurface = mMediaCodec.createInputSurface();
                 mMediaCodec.start();
-                if(mUsePreview) {
+                if(USE_PREVIEW) {
                     inputSurf = Arrays.asList(mSurface, mEncodeSurface);
                 }else{
                     inputSurf = Arrays.asList(mEncodeSurface);

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -133,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
             CameraService.PORT = mPrefs.getInt("port", 8000);
             CameraService.BITRATE = mPrefs.getInt("bitrate", CameraService.BITRATE);
             CameraService.QUALITY_JPEG = mPrefs.getInt("quality.jpeg", CameraService.QUALITY_JPEG);
+            CameraService.USE_PREVIEW = mPrefs.getBoolean("use_preview", CameraService.USE_PREVIEW);
         }catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -169,6 +171,40 @@ public class MainActivity extends AppCompatActivity {
         }
         mTextView.setText("CAMERA BACK:      frames count " + mCameras[CAMERA_BACK].getFramesCount() + "\n" +
                 "CAMERA FRONT:   frames count " + mCameras[CAMERA_FRONT].getFramesCount() + "\n" + error);
+
+
+        if(CameraService.USE_PREVIEW && mImageView != null){
+            int w = 0, h = 0;
+            if(mCameras[CAMERA_BACK].isOpen()){
+                w = mCameras[CAMERA_BACK].widthImage;
+                h = mCameras[CAMERA_BACK].heightImage;
+            }
+            if(mCameras[CAMERA_FRONT].isOpen()){
+                w = mCameras[CAMERA_FRONT].widthImage;
+                h = mCameras[CAMERA_FRONT].heightImage;
+            }
+            if(w != 0 && h != 0){
+                Matrix tx = new Matrix();
+                int wv = mImageView.getWidth();
+                int hv = mImageView.getHeight();
+
+                float ari = (float)h/w;
+                float arw = (float)wv/hv;
+
+                mImageView.getTransform(tx);
+
+                if(ari < arw){
+                    tx.setScale((float)1, (float)ari / arw);
+                }else{
+                    tx.setScale((float)wv/h, (float)1);
+                }
+
+                float xoff = 0;
+                float yoff = hv/2 - (hv * ari / arw)/2;
+                tx.postTranslate(xoff, yoff);
+                mImageView.setTransform(tx);
+            }
+        }
     }
 
     /** Check if this device has a camera */
@@ -252,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putInt("port", CameraService.PORT);
             editor.putInt("quality.jpeg", CameraService.QUALITY_JPEG);
             editor.putInt("bitrate", CameraService.BITRATE);
+            editor.putBoolean("use_preview", CameraService.USE_PREVIEW);
             editor.commit();
         }
     }
