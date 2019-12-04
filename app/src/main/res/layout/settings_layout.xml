@@ -55,15 +55,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/frame_rates"/>
-<!--        <EditText-->
-<!--            android:id="@+id/frame_rate"-->
-<!--            android:inputType="number|numberDecimal"-->
-<!--            android:digits="0123456789"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:text="@string/frame_rate_value"-->
-<!--            android:layout_height="wrap_content">-->
-<!--        </EditText>-->
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -104,6 +97,38 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sizesfrontcamera">
+        </TextView>
+        <Spinner
+            android:id="@+id/sizesfrontcamera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sizesbackcamera">
+        </TextView>
+        <Spinner
+            android:id="@+id/sizesbackcamera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
 
     <Button
         android:id="@+id/settings_ok"

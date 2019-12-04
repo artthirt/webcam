@@ -76,7 +76,7 @@ SenderSingleton::SenderSingleton()
     m_threadSender.reset(new std::thread(std::bind(&SenderSingleton::doSendData, this)));
 
     m_sock = socket(AF_INET, SOCK_DGRAM, 0);
-    int buf = 2 * 1024 * 1024;
+    int buf = 6 * 1024 * 1024;
     setsockopt(m_sock, SOL_SOCKET, SO_SNDBUF, &buf, sizeof(buf));
     int err = errno;
 }

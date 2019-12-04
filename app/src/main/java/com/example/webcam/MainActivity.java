@@ -135,6 +135,10 @@ public class MainActivity extends AppCompatActivity {
             CameraService.BITRATE = mPrefs.getInt("bitrate", CameraService.BITRATE);
             CameraService.QUALITY_JPEG = mPrefs.getInt("quality.jpeg", CameraService.QUALITY_JPEG);
             CameraService.USE_PREVIEW = mPrefs.getBoolean("use_preview", CameraService.USE_PREVIEW);
+            CameraService.FRAMERATE = mPrefs.getInt("framerate", CameraService.FRAMERATE);
+
+            mCameras[CAMERA_FRONT].setCurrentSizeIndex(mPrefs.getInt("frontcamindex", -1));
+            mCameras[CAMERA_BACK].setCurrentSizeIndex(mPrefs.getInt("backcamindex", -1));
         }catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -150,6 +154,34 @@ public class MainActivity extends AppCompatActivity {
                         mCameras[CAMERA_BACK].closeCamera();
                     mCameras[CAMERA_BACK].openCamera();
                 }
+            }
+        });
+
+        ((Button)findViewById(R.id.button_open_front)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mCameras[CAMERA_BACK].isOpen())
+                    mCameras[CAMERA_BACK].closeCamera();
+
+                if(mCameras[CAMERA_FRONT] != null){
+                    if(mCameras[CAMERA_FRONT].isOpen())
+                        mCameras[CAMERA_FRONT].closeCamera();
+                    mCameras[CAMERA_FRONT].openCamera();
+                }
+            }
+        });
+
+        ((Button)findViewById(R.id.button_close_front)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCameras[CAMERA_FRONT].closeCamera();
+            }
+        });
+
+        ((Button)findViewById(R.id.button_close_back)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCameras[CAMERA_BACK].closeCamera();
             }
         });
 
@@ -267,6 +299,8 @@ public class MainActivity extends AppCompatActivity {
 //                startService(intent);
 
                 SettingsDialog sd = new SettingsDialog(this, this);
+                sd.setSizesFrontCamera(mCameras[CAMERA_FRONT].sizes, mCameras[CAMERA_FRONT].getCurrentSizeIndex());
+                sd.setSizesBackCamera(mCameras[CAMERA_BACK].sizes, mCameras[CAMERA_BACK].getCurrentSizeIndex());
                 sd.show();
                 return true;
             }
@@ -288,9 +322,19 @@ public class MainActivity extends AppCompatActivity {
             editor.putInt("port", CameraService.PORT);
             editor.putInt("quality.jpeg", CameraService.QUALITY_JPEG);
             editor.putInt("bitrate", CameraService.BITRATE);
+            editor.putInt("framerate", CameraService.FRAMERATE);
             editor.putBoolean("use_preview", CameraService.USE_PREVIEW);
+            editor.putInt("frontcamindex", mCameras[CAMERA_FRONT].getCurrentSizeIndex());
+            editor.putInt("backcamindex", mCameras[CAMERA_BACK].getCurrentSizeIndex());
             editor.commit();
         }
+    }
+
+    public void setFrontCameraIndex(int id){
+        mCameras[CAMERA_FRONT].setCurrentSizeIndex(id);
+    }
+    public void setBackCameraIndex(int id){
+        mCameras[CAMERA_BACK].setCurrentSizeIndex(id);
     }
 
     public void setTypeEncoding(int v){

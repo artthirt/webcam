@@ -18,6 +18,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -73,7 +74,8 @@ public class CameraService {
 
     private Surface mEncodeSurface = null;
     private int mMediaFrameKeyCount = 0;
-    private int mMediaFrameKeyCountMax = 15;
+    private int mMediaFrameKeyCountMax = FRAMERATE;
+    private int mCurrentSizeIndex = -1;
 
     public static int BITRATE = 20000000;
     public static int FRAMERATE = 30;
@@ -104,6 +106,20 @@ public class CameraService {
     }
 
     public Size sizes[] = null;
+
+    public void setCurrentSizeIndex(int id){
+        if(sizes == null)
+            return;
+        if(id >= 0 && id < sizes.length) {
+            mCurrentSizeIndex = id;
+
+            Size s = sizes[id];
+            Log.i(LOG_TAG, "" + s.getWidth() + "x" + s.getHeight());
+        }
+    }
+    public int getCurrentSizeIndex(){
+        return mCurrentSizeIndex;
+    }
 
     private CameraDevice.StateCallback mCamCallback = new CameraDevice.StateCallback() {
         @Override
@@ -202,18 +218,22 @@ public class CameraService {
         Size s = null;
 
         if(sizes != null) {
-            Size sout = sizes[0];
-            for (Size s1 : sizes) {
-                if(s1.getWidth() == 1920 && s1.getHeight() == 1080){
-                    s = s1;
-                    break;
+            if(mCurrentSizeIndex < 0) {
+                Size sout = sizes[0];
+                for (Size s1 : sizes) {
+                    if (s1.getWidth() == 1920 && s1.getHeight() == 1080) {
+                        s = s1;
+                        break;
+                    }
+                    if (s1.getWidth() > sout.getWidth() || s1.getHeight() > sout.getHeight()) {
+                        sout = s1;
+                    }
                 }
-                if(s1.getWidth() > sout.getWidth() || s1.getHeight() > sout.getHeight()){
-                    sout = s1;
-                }
+                if (s == null)
+                    s = sout;
+            }else{
+                s = sizes[mCurrentSizeIndex];
             }
-            if(s == null)
-                s = sout;
         }else{
             s = new Size(640, 480);
         }
@@ -248,6 +268,7 @@ public class CameraService {
                 format.setInteger(MediaFormat.KEY_BIT_RATE, BITRATE);
                 format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAMERATE);
                 format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 2);
+                Log.i(LOG_TAG, "format framerate " + FRAMERATE);
                 mMediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
                 mMediaCodec.setCallback(mMediaCallback);
                 mEncodeSurface = mMediaCodec.createInputSurface();
@@ -383,9 +404,9 @@ public class CameraService {
             mMediaFrameKeyCount++;
 
             if(mMediaFrameKeyCount > mMediaFrameKeyCountMax) {
-//                Bundle params = new Bundle();
-//                params.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
-//                mMediaCodec.setParameters(params);
+                Bundle params = new Bundle();
+                params.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
+                mMediaCodec.setParameters(params);
 
                 mMediaFrameKeyCount = 0;
                 new SenderTask(0, 0, HOST, PORT).execute(mCodeConfigBytes);
