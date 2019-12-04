@@ -131,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
 
             CameraService.HOST = mPrefs.getString("ip", "10.0.2.2");
             CameraService.PORT = mPrefs.getInt("port", 8000);
+            CameraService.BITRATE = mPrefs.getInt("bitrate", CameraService.BITRATE);
+            CameraService.QUALITY_JPEG = mPrefs.getInt("quality.jpeg", CameraService.QUALITY_JPEG);
         }catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -165,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
         if(mCameras[CAMERA_BACK].isError()){
             error = "CAMERA BACK got error";
         }
-        mTextView.setText("CAMERA BACK: frames count " + mCameras[CAMERA_BACK].getFramesCount() + "\n" +
-                "CAMERA FRONT: frames count " + mCameras[CAMERA_FRONT].getFramesCount() + "\n" + error);
+        mTextView.setText("CAMERA BACK:      frames count " + mCameras[CAMERA_BACK].getFramesCount() + "\n" +
+                "CAMERA FRONT:   frames count " + mCameras[CAMERA_FRONT].getFramesCount() + "\n" + error);
     }
 
     /** Check if this device has a camera */
