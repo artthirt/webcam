@@ -26,24 +26,24 @@
                 android:orientation="horizontal"
                 android:layout_weight="0.1"
                 android:layout_alignParentBottom="true">
-                <Button
-                    android:id="@+id/button_open_front"
-                    android:layout_width="match_parent"
-                    android:layout_margin="5px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@color/colorWhite"
-                    android:background="@color/colorDark"
-                    android:text="@string/open_front" />
-                <Button
-                    android:id="@+id/button_open_back"
-                    android:background="@color/colorDark"
-                    android:textColor="@color/colorWhite"
-                    android:layout_margin="5px"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/open_back" />
+<!--                <Button-->
+<!--                    android:id="@+id/button_open_front"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_margin="5px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:textColor="@color/colorWhite"-->
+<!--                    android:background="@color/colorDark"-->
+<!--                    android:text="@string/open_front" />-->
+<!--                <Button-->
+<!--                    android:id="@+id/button_open_back"-->
+<!--                    android:background="@color/colorDark"-->
+<!--                    android:textColor="@color/colorWhite"-->
+<!--                    android:layout_margin="5px"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="@string/open_back" />-->
             </LinearLayout>
 
             <LinearLayout
@@ -52,26 +52,63 @@
                 android:orientation="horizontal"
                 android:layout_weight="0.1"
                 android:layout_alignParentBottom="true">
-                <Button
-                    android:id="@+id/button_close_front"
-                    android:layout_width="match_parent"
-                    android:layout_margin="5px"
-                    android:textColor="@color/colorWhite"
-                    android:background="@color/colorDark"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/close_front" />
+<!--                <Button-->
+<!--                    android:id="@+id/button_close_front"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_margin="5px"-->
+<!--                    android:textColor="@color/colorWhite"-->
+<!--                    android:background="@color/colorDark"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="@string/close_front" />-->
             </LinearLayout>
 
-            <TextureView
-                android:id="@+id/texture_view"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.49"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_weight="0.8"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_height="match_parent">
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_gravity="top|left"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content" >
+                    <RadioButton
+                        android:id="@+id/rb_back"
+                        android:text="@string/back_cam"
+                        android:checked="true"
+                        android:textColor="@color/colorWhite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <RadioButton
+                        android:id="@+id/rb_front"
+                        android:text="@string/front_cam"
+                        android:textColor="@color/colorWhite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </RadioGroup>
+
+                <ToggleButton
+                    android:id="@+id/toggle_camera"
+                    android:textOff=""
+                    android:textOn=""
+                    android:alpha="0.8"
+                    android:layout_gravity="bottom|center"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp" />
+
+                <TextureView
+                    android:id="@+id/texture_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.49"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_weight="0.8"
+                    app:layout_constraintTop_toTopOf="parent" >
+                </TextureView>
+
+            </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"

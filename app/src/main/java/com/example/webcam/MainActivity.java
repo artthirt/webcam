@@ -30,7 +30,9 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,8 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextureView mImageView = null;
 
-    private Button mCamFront = null;
-    private Button mCamBack = null;
+    private ToggleButton mCamToggle = null;
+    private RadioButton mCamBackRb = null;
+    private RadioButton mCamFrontRb = null;
 
     private TextView mTextView = null;
 
@@ -81,8 +84,10 @@ public class MainActivity extends AppCompatActivity {
 
         mCameraManager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
 
-        mCamFront = (Button)findViewById(R.id.button_open_front);
-        mCamBack = (Button)findViewById(R.id.button_open_back);
+        mCamToggle = (ToggleButton) findViewById(R.id.toggle_camera);
+
+        mCamBackRb = (RadioButton)findViewById(R.id.rb_back);
+        mCamFrontRb = (RadioButton)findViewById(R.id.rb_front);
 
         mTextView = (TextView)findViewById(R.id.text_view);
 
@@ -143,39 +148,31 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        mCamBack.setOnClickListener(new View.OnClickListener() {
+        mCamToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mCameras[CAMERA_FRONT].isOpen())
+                if(mCamToggle.isChecked()){
+                    if(mCamBackRb.isChecked()){
+                        if(mCameras[CAMERA_BACK] != null){
+                            if(mCameras[CAMERA_BACK].isOpen())
+                                mCameras[CAMERA_BACK].closeCamera();
+                            mCameras[CAMERA_BACK].openCamera();
+                        }
+                    }
+                    if(mCamFrontRb.isChecked()){
+                        if(mCameras[CAMERA_BACK].isOpen())
+                            mCameras[CAMERA_BACK].closeCamera();
+
+                        if(mCameras[CAMERA_FRONT] != null){
+                            if(mCameras[CAMERA_FRONT].isOpen())
+                                mCameras[CAMERA_FRONT].closeCamera();
+                            mCameras[CAMERA_FRONT].openCamera();
+                        }
+                    }
+                }else{
                     mCameras[CAMERA_FRONT].closeCamera();
-
-                if(mCameras[CAMERA_BACK] != null){
-                    if(mCameras[CAMERA_BACK].isOpen())
-                        mCameras[CAMERA_BACK].closeCamera();
-                    mCameras[CAMERA_BACK].openCamera();
-                }
-            }
-        });
-
-        ((Button)findViewById(R.id.button_open_front)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mCameras[CAMERA_BACK].isOpen())
                     mCameras[CAMERA_BACK].closeCamera();
-
-                if(mCameras[CAMERA_FRONT] != null){
-                    if(mCameras[CAMERA_FRONT].isOpen())
-                        mCameras[CAMERA_FRONT].closeCamera();
-                    mCameras[CAMERA_FRONT].openCamera();
                 }
-            }
-        });
-
-        ((Button)findViewById(R.id.button_close_front)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCameras[CAMERA_FRONT].closeCamera();
-                mCameras[CAMERA_BACK].closeCamera();
             }
         });
 
@@ -222,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                 if(ari < arw){
                     tx.setScale((float)1, (float)ari / arw);
                 }else{
-                    tx.setScale((float)wv/h, (float)1);
+                    tx.setScale((float)ari/arw, (float)1);
                 }
 
                 float xoff = 0;
