@@ -175,12 +175,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mCameras[CAMERA_FRONT].closeCamera();
-            }
-        });
-
-        ((Button)findViewById(R.id.button_close_back)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 mCameras[CAMERA_BACK].closeCamera();
             }
         });

@@ -36,14 +36,14 @@
                     android:background="@color/colorDark"
                     android:text="@string/open_front" />
                 <Button
-                    android:id="@+id/button_close_front"
-                    android:layout_width="match_parent"
-                    android:layout_margin="5px"
-                    android:textColor="@color/colorWhite"
+                    android:id="@+id/button_open_back"
                     android:background="@color/colorDark"
+                    android:textColor="@color/colorWhite"
+                    android:layout_margin="5px"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/close_front" />
+                    android:text="@string/open_back" />
             </LinearLayout>
 
             <LinearLayout
@@ -53,23 +53,14 @@
                 android:layout_weight="0.1"
                 android:layout_alignParentBottom="true">
                 <Button
-                    android:id="@+id/button_open_back"
-                    android:background="@color/colorDark"
-                    android:textColor="@color/colorWhite"
-                    android:layout_margin="5px"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/open_back" />
-                <Button
-                    android:id="@+id/button_close_back"
-                    android:background="@color/colorDark"
-                    android:textColor="@color/colorWhite"
+                    android:id="@+id/button_close_front"
                     android:layout_width="match_parent"
                     android:layout_margin="5px"
+                    android:textColor="@color/colorWhite"
+                    android:background="@color/colorDark"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/close_back" />
+                    android:text="@string/close_front" />
             </LinearLayout>
 
             <TextureView
