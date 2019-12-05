@@ -88,12 +88,21 @@
 
                 </RadioGroup>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:textColor="@color/colorWhite"
+                    android:layout_gravity="top|right"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="40dp"
+                    android:id="@+id/text_view" />
+
                 <ToggleButton
                     android:id="@+id/toggle_camera"
                     android:textOff=""
                     android:textOn=""
                     android:alpha="0.8"
                     android:layout_gravity="bottom|center"
+                    android:background="@drawable/cambutton"
                     android:layout_width="80dp"
                     android:layout_height="80dp" />
 
@@ -109,13 +118,6 @@
                 </TextureView>
 
             </FrameLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:textColor="@color/colorWhite"
-                android:layout_height="50dp"
-                android:layout_weight="0.1"
-                android:id="@+id/text_view" />
 
         </LinearLayout>
 
