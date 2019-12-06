@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** Check if this device has a camera */
     private boolean checkCameraHardware(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
             // this device has a camera
             return true;
         } else {
