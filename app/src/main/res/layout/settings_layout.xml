@@ -75,9 +75,28 @@
         </EditText>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/quality_jpeg">
+        </TextView>
+        <EditText
+            android:id="@+id/quality_jpeg"
+            android:inputType="number|numberDecimal"
+            android:digits="0123456789"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </EditText>
+    </LinearLayout>
+
     <CheckBox
         android:id="@+id/preview"
         android:text="@string/preview"
+        android:layout_margin="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />

@@ -39,6 +39,7 @@ public class SettingsDialog {
         final RadioButton bH264 = (RadioButton) mDialogView.findViewById(R.id.H264);
         final Spinner eFrameRate = (Spinner) mDialogView.findViewById(R.id.frame_rate);
         final EditText eBitrate = (EditText) mDialogView.findViewById(R.id.bitrate);
+        final EditText eQuality = (EditText) mDialogView.findViewById(R.id.quality_jpeg);
         eFrameRate.setSelection(2);
 
         Button bOk = (Button) mDialogView.findViewById(R.id.settings_ok);
@@ -46,6 +47,7 @@ public class SettingsDialog {
         eIP.setText(CameraService.HOST);
         ePort.setText(Integer.toString(CameraService.PORT));
         eBitrate.setText(Integer.toString(CameraService.BITRATE));
+        eQuality.setText(Integer.toString(CameraService.QUALITY_JPEG));
         chPreview.setChecked(CameraService.USE_PREVIEW);
 
         int frameRates[] = {15, 25, 30, 60};
@@ -73,6 +75,8 @@ public class SettingsDialog {
                 Log.i(LOG_TAG, "framerate " + frame_rate);
                 int bitrate = parseInt(eBitrate.getText().toString());
                 CameraService.BITRATE = bitrate;
+                int quality = parseInt(eQuality.getText().toString());
+                CameraService.QUALITY_JPEG = quality;
 
                 Spinner fcam = (Spinner) mDialogView.findViewById(R.id.sizesfrontcamera);
                 Spinner bcam = (Spinner) mDialogView.findViewById(R.id.sizesbackcamera);

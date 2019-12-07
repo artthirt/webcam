@@ -19,6 +19,7 @@
     <string name="sizesbackcamera">Разрешения задней камеры</string>
     <string name="back_cam">BACK</string>
     <string name="front_cam">FRONT</string>
+    <string name="quality_jpeg">Коэффициент сжатия jpeg</string>
     <string-array name="frame_rates">
         <item>15</item>
         <item>25</item>

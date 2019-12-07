@@ -361,7 +361,7 @@ public class CameraService {
             if(mCurrentThreads < mMaxThreads) {
                 mCurrentThreads++;
 //                byte[][] planes = {bytes, bytes1, bytes2};
-                new SenderTask(mCapture.getWidth(), mCapture.getHeight(), mIP, mPort).execute(bytes);
+                new SenderTask(mIP, mPort).execute(bytes);
             }
             mCapture.close();
         }
@@ -395,7 +395,7 @@ public class CameraService {
             if(mCurrentThreads < mMaxThreads) {
                 mCurrentThreads++;
 //                byte[][] planes = {bytes, bytes1, bytes2};
-                new SenderTask(0, 0, HOST, PORT).execute(data);
+                new SenderTask(HOST, PORT).execute(data);
             }
 
             mMediaCodec.releaseOutputBuffer(index, false);
@@ -409,7 +409,7 @@ public class CameraService {
                 mMediaCodec.setParameters(params);
 
                 mMediaFrameKeyCount = 0;
-                new SenderTask(0, 0, HOST, PORT).execute(mCodeConfigBytes);
+                new SenderTask(HOST, PORT).execute(mCodeConfigBytes);
             }
         }
 
@@ -428,14 +428,10 @@ public class CameraService {
 
         private String mIP;
         private int mPort;
-        private int mW;
-        private int mH;
 
-        public SenderTask(int w, int h, String ip, int port){
+        public SenderTask(String ip, int port){
             mIP = ip;
             mPort = port;
-            mW = w;
-            mH = h;
         }
 
         @Override
