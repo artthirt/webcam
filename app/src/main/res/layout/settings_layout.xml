@@ -44,6 +44,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="15dp"
         android:orientation="horizontal">
         <TextView
             android:layout_width="100dp"
@@ -60,24 +61,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="15dp"
         android:orientation="horizontal">
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="@string/bitrate">
         </TextView>
-        <EditText
+        <Spinner
             android:id="@+id/bitrate"
-            android:inputType="number|numberDecimal"
-            android:digits="0123456789"
+            android:entries="@array/bitrates"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-        </EditText>
+        </Spinner>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="55dp"
+        android:layout_margin="15dp"
         android:orientation="horizontal">
         <TextView
             android:layout_width="100dp"

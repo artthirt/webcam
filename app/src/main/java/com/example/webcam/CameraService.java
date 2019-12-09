@@ -77,7 +77,11 @@ public class CameraService {
     private int mMediaFrameKeyCountMax = FRAMERATE;
     private int mCurrentSizeIndex = -1;
 
-    public static int BITRATE = 20000000;
+    public static int BITRATES[] = {
+            250 * 1000, 500 * 1000, 750 * 1000, 1000 * 1000, 2000 * 1000, 5000 * 1000, 7500 * 1000,
+            10 * 1000 * 1000, 15 * 1000 * 1000, 20 * 1000 * 1000, 30 * 1000 * 1000
+    };
+    public static int BITRATE = BITRATES[5];
     public static int FRAMERATE = 30;
     public static String HOST = "10.0.2.2";
     public static int PORT = 8000;

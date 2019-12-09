@@ -26,4 +26,17 @@
         <item>30</item>
         <item>60</item>
     </string-array>
+    <string-array name="bitrates">
+        <item>250 K/s</item>
+        <item>500 K/s</item>
+        <item>750 K/s</item>
+        <item>1 M/s</item>
+        <item>2 M/s</item>
+        <item>5 M/s</item>
+        <item>7.5 M/s</item>
+        <item>10 M/s</item>
+        <item>15 M/s</item>
+        <item>20 M/s</item>
+        <item>30 M/s</item>
+    </string-array>
 </resources>
