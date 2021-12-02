@@ -142,8 +142,10 @@ public class MainActivity extends AppCompatActivity {
             CameraService.USE_PREVIEW = mPrefs.getBoolean("use_preview", CameraService.USE_PREVIEW);
             CameraService.FRAMERATE = mPrefs.getInt("framerate", CameraService.FRAMERATE);
 
-            mCameras[CAMERA_FRONT].setCurrentSizeIndex(mPrefs.getInt("frontcamindex", -1));
-            mCameras[CAMERA_BACK].setCurrentSizeIndex(mPrefs.getInt("backcamindex", -1));
+            if(mCameras.length > CAMERA_FRONT)
+                mCameras[CAMERA_FRONT].setCurrentSizeIndex(mPrefs.getInt("frontcamindex", -1));
+            if(mCameras.length > CAMERA_BACK)
+                mCameras[CAMERA_BACK].setCurrentSizeIndex(mPrefs.getInt("backcamindex", -1));
         }catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -153,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(mCamToggle.isChecked()){
                     if(mCamBackRb.isChecked()){
-                        if(mCameras[CAMERA_BACK] != null){
+                        if(mCameras.length > CAMERA_BACK && mCameras[CAMERA_BACK] != null){
                             if(mCameras[CAMERA_BACK].isOpen())
                                 mCameras[CAMERA_BACK].closeCamera();
                             mCameras[CAMERA_BACK].openCamera();
@@ -163,15 +165,16 @@ public class MainActivity extends AppCompatActivity {
                         if(mCameras[CAMERA_BACK].isOpen())
                             mCameras[CAMERA_BACK].closeCamera();
 
-                        if(mCameras[CAMERA_FRONT] != null){
+                        if(mCameras.length > CAMERA_FRONT && mCameras[CAMERA_FRONT] != null){
                             if(mCameras[CAMERA_FRONT].isOpen())
                                 mCameras[CAMERA_FRONT].closeCamera();
                             mCameras[CAMERA_FRONT].openCamera();
                         }
                     }
                 }else{
-                    mCameras[CAMERA_FRONT].closeCamera();
-                    mCameras[CAMERA_BACK].closeCamera();
+                    for(int i = 0; i < mCameras.length; ++i) {
+                        mCameras[i].closeCamera();
+                    }
                 }
             }
         });
@@ -189,20 +192,26 @@ public class MainActivity extends AppCompatActivity {
             return;
 
         String error = "";
-        if(mCameras[CAMERA_BACK].isError()){
+        if(mCameras.length > CAMERA_BACK && mCameras[CAMERA_BACK].isError()){
             error = "CAMERA BACK got error";
         }
-        mTextView.setText("CAMERA BACK:      frames count " + mCameras[CAMERA_BACK].getFramesCount() + "\n" +
-                "CAMERA FRONT:   frames count " + mCameras[CAMERA_FRONT].getFramesCount() + "\n" + error);
+
+        String str = "";
+        if(mCameras.length > CAMERA_BACK)
+            str = "CAMERA BACK:      frames count " + mCameras[CAMERA_BACK].getFramesCount();
+        if(mCameras.length > CAMERA_FRONT)
+            str += "\n" + "CAMERA FRONT:   frames count " + mCameras[CAMERA_FRONT].getFramesCount();
+        str += "\n" + error;
+        mTextView.setText(str);
 
 
         if(CameraService.USE_PREVIEW && mImageView != null){
             int w = 0, h = 0;
-            if(mCameras[CAMERA_BACK].isOpen()){
+            if(mCameras.length > CAMERA_BACK && mCameras[CAMERA_BACK].isOpen()){
                 w = mCameras[CAMERA_BACK].widthImage;
                 h = mCameras[CAMERA_BACK].heightImage;
             }
-            if(mCameras[CAMERA_FRONT].isOpen()){
+            if(mCameras.length > CAMERA_FRONT && mCameras[CAMERA_FRONT].isOpen()){
                 w = mCameras[CAMERA_FRONT].widthImage;
                 h = mCameras[CAMERA_FRONT].heightImage;
             }
@@ -263,8 +272,9 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         startBackgroundThread();
 
-        mCameras[CAMERA_BACK].setHandler(mBackgroundHandler);
-        mCameras[CAMERA_FRONT].setHandler(mBackgroundHandler);
+        for(int i = 0; i < mCameras.length; ++i) {
+            mCameras[i].setHandler(mBackgroundHandler);
+        }
     }
 
     @Override
@@ -290,8 +300,9 @@ public class MainActivity extends AppCompatActivity {
 //                startService(intent);
 
                 SettingsDialog sd = new SettingsDialog(this, this);
-                sd.setSizesFrontCamera(mCameras[CAMERA_FRONT].sizes, mCameras[CAMERA_FRONT].getCurrentSizeIndex());
-                sd.setSizesBackCamera(mCameras[CAMERA_BACK].sizes, mCameras[CAMERA_BACK].getCurrentSizeIndex());
+                for(int i = 0; i < mCameras.length; ++i) {
+                    sd.setSizesFrontCamera(mCameras[i].sizes, mCameras[i].getCurrentSizeIndex());
+                }
                 sd.show();
                 return true;
             }
@@ -315,32 +326,36 @@ public class MainActivity extends AppCompatActivity {
             editor.putInt("bitrate", CameraService.BITRATE);
             editor.putInt("framerate", CameraService.FRAMERATE);
             editor.putBoolean("use_preview", CameraService.USE_PREVIEW);
-            editor.putInt("frontcamindex", mCameras[CAMERA_FRONT].getCurrentSizeIndex());
-            editor.putInt("backcamindex", mCameras[CAMERA_BACK].getCurrentSizeIndex());
+            if(mCameras.length > CAMERA_FRONT)
+                editor.putInt("frontcamindex", mCameras[CAMERA_FRONT].getCurrentSizeIndex());
+            if(mCameras.length > CAMERA_BACK)
+                editor.putInt("backcamindex", mCameras[CAMERA_BACK].getCurrentSizeIndex());
             editor.commit();
         }
     }
 
     public void setFrontCameraIndex(int id){
-        mCameras[CAMERA_FRONT].setCurrentSizeIndex(id);
+        if(mCameras.length > CAMERA_FRONT)
+            mCameras[CAMERA_FRONT].setCurrentSizeIndex(id);
     }
     public void setBackCameraIndex(int id){
-        mCameras[CAMERA_BACK].setCurrentSizeIndex(id);
+        if(mCameras.length > CAMERA_BACK)
+            mCameras[CAMERA_BACK].setCurrentSizeIndex(id);
     }
 
     public void setTypeEncoding(int v){
-        if(mCameras[CAMERA_BACK] != null){
+        if(mCameras.length > CAMERA_BACK && mCameras[CAMERA_BACK] != null){
             mCameras[CAMERA_BACK].setTypeEncode(v == 0? CameraService.CHOOSE_JPEG : CameraService.CHOOSE_H264);
         }
-        if(mCameras[CAMERA_FRONT] != null) {
+        if(mCameras.length > CAMERA_FRONT && mCameras[CAMERA_FRONT] != null) {
             mCameras[CAMERA_FRONT].setTypeEncode(v == 0? CameraService.CHOOSE_JPEG : CameraService.CHOOSE_H264);
         }
     }
     public void setUsePreview(boolean u){
-        if(mCameras[CAMERA_BACK] != null){
+        if(mCameras.length > CAMERA_BACK && mCameras[CAMERA_BACK] != null){
             mCameras[CAMERA_BACK].setUsePreview(u);
         }
-        if(mCameras[CAMERA_FRONT] != null) {
+        if(mCameras.length > CAMERA_FRONT && mCameras[CAMERA_FRONT] != null) {
             mCameras[CAMERA_FRONT].setUsePreview(u);
         }
     }
